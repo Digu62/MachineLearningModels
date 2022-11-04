@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense, Flatten, Input
+from tensorflow.keras.metrics import Accuracy
 
 #Reading data
 data = pd.read_csv('IRIS.csv')
@@ -46,4 +49,23 @@ print(f'Train length: {len(x_train)}')
 print(f'Val length: {len(x_val)}')
 print(f'Test length: {len(x_test)}')
 
+batch_size = 32
+epochs = 10
+loss = 'binary_crossentropy'
+activation_function = 'relu'
+
+model = Sequential()
+model.add(Input())
+model.add(Dense(64, activation = activation_function))
+model.add(Dense(32, activation = activation_function))
+model.add(Dense(16, activation = activation_function))
+model.add(Dense(3, activation = 'sigmoid')) #Final layer
+model.compile(loss=loss, optimizer='relu', metric=[Accuracy()])
+
+model.fit(  x = x_train, 
+            y = y_train, 
+            batch_size=batch_size, 
+            epochs=epochs, 
+            verbose=1,
+            validation_data=(x_val,y_val))
 
