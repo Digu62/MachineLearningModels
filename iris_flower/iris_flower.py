@@ -2,12 +2,13 @@ import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
-from tensorflow.keras import Sequential
+from tensorflow.keras import Sequential, Model
 from tensorflow.keras.layers import Dense, Flatten, Input
 from tensorflow.keras.metrics import Accuracy
 
 #Reading data
 data = pd.read_csv('IRIS.csv')
+
 print(f"Data:\n{data}")
 print(f"Dataset Length: {len(data)}")
 print(f"Data Columns: {list(data.columns)}\n")
@@ -53,19 +54,25 @@ batch_size = 32
 epochs = 10
 loss = 'binary_crossentropy'
 activation_function = 'relu'
+optmizer = 'Adam'
 
-model = Sequential()
-model.add(Input())
+model = Sequential(name="iris_flower")
+#The input shape will be 4 because we have four variables (sepal/petal length and sepal/petal width)
+model.add(Input(shape=(4))) 
 model.add(Dense(64, activation = activation_function))
 model.add(Dense(32, activation = activation_function))
 model.add(Dense(16, activation = activation_function))
 model.add(Dense(3, activation = 'sigmoid')) #Final layer
-model.compile(loss=loss, optimizer='relu', metric=[Accuracy()])
+model.add(Flatten())
+model.compile(loss=loss, optimizer=optmizer, metrics='accuracy')
 
-model.fit(  x = x_train, 
-            y = y_train, 
-            batch_size=batch_size, 
-            epochs=epochs, 
-            verbose=1,
-            validation_data=(x_val,y_val))
+model.summary()
+
+hist = model.fit(   x = x_train, 
+                    y = y_train, 
+                    batch_size=batch_size, 
+                    epochs=epochs, 
+                    verbose=1,
+                    validation_data=(x_val,y_val))
+
 
