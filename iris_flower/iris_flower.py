@@ -50,29 +50,34 @@ print(f'Train length: {len(x_train)}')
 print(f'Val length: {len(x_val)}')
 print(f'Test length: {len(x_test)}')
 
-batch_size = 32
-epochs = 10
-loss = 'binary_crossentropy'
-activation_function = 'relu'
-optmizer = 'Adam'
+batch_size = 64
+epochs = 35
+loss = 'sparse_categorical_crossentropy'
+optmizer = 'adam'
 
 model = Sequential(name="iris_flower")
 #The input shape will be 4 because we have four variables (sepal/petal length and sepal/petal width)
 model.add(Input(shape=(4))) 
-model.add(Dense(64, activation = activation_function))
-model.add(Dense(32, activation = activation_function))
-model.add(Dense(16, activation = activation_function))
-model.add(Dense(3, activation = 'sigmoid')) #Final layer
+model.add(Dense(32, activation = 'tanh'))
+model.add(Dense(64, activation = 'relu'))
+model.add(Dense(32, activation = 'relu'))
+model.add(Dense(3, activation = 'softmax')) #Final layer using softax because the target is multiclass
 model.add(Flatten())
 model.compile(loss=loss, optimizer=optmizer, metrics='accuracy')
 
 model.summary()
 
-hist = model.fit(   x = x_train, 
+history = model.fit(   x = x_train, 
                     y = y_train, 
                     batch_size=batch_size, 
                     epochs=epochs, 
                     verbose=1,
                     validation_data=(x_val,y_val))
 
+#Verifica a generalização do modelo para dados de teste
+model.evaluate(x_test, y_test, verbose=1) 
 
+print(history.history.keys())
+
+# model.predict(x_test)
+# model.save("Path.h5")
