@@ -1,5 +1,6 @@
 import numpy as np 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import Sequential, Model
@@ -16,6 +17,7 @@ print(f"Data Columns: {list(data.columns)}\n")
 #Verifying missing values
 print(f"There are NaN values?: {data.isnull().values.any()}\n")
 print(f"Number of NaN values:\n{data.isnull().sum()}\n")
+#print(data.info())
 
 #Discretizing target
 '''
@@ -24,16 +26,28 @@ print(f"Number of NaN values:\n{data.isnull().sum()}\n")
     Iris-virginica: 2
 '''
 print(data['species'].unique())
-data['species'] = data['species'].map({'Iris-setosa':0, 'Iris-versicolor':1, 'Iris-virginica':2})
+data['species_disc'] = data['species'].map({'Iris-setosa':0, 'Iris-versicolor':1, 'Iris-virginica':2})
 print(data)
 
+#Visualizing data
+colors = ['purple', 'blue', 'green']
+for i in range(3): #For each class make a plot in graph
+    scatter = plt.scatter(  data['sepal_length'][data['species_disc']==i],
+                            data['sepal_width'][data['species_disc']==i],
+                            c=colors[i],
+                            label=data['species'].unique()[i])
+plt.title('Iris-Flower Graph')
+plt.xlabel('sepal_width')
+plt.ylabel('sepal_length')
+plt.legend()
+plt.show()
+
 #Separating target from features
-y = data['species'] #Target
-x = data.drop(columns='species') #Features
+y = data['species_disc'] #Target
+x = data.drop(columns=['species','species_disc']) #Features
 
 print(f"Data:\n{x.head()}\n")
 print(f"Target:\n{y.head()}\n")
-
 
 #Separating train, val and test data
 '''
