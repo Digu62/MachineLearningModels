@@ -1,18 +1,25 @@
+import os
 import numpy as np 
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.model_selection import train_test_split
 
 import tensorflow.keras as keras
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Input
+from tensorflow.keras.layers import Dense, Flatten, Input, Dropout
 
 plot_images = False
+image_path = "images"
+
+if not os.path.exists(image_path):
+    os.makedirs(image_path)
 
 #Reading data
-data = pd.read_csv('IRIS.csv')
+#https://www.kaggle.com/datasets/arshid/iris-flower-dataset
+data = pd.read_csv('IRIS.csv') 
 
 print(f"Data:\n{data}")
 print(f"Dataset Length: {len(data)}")
@@ -34,34 +41,36 @@ data['species_disc'] = data['species'].map({'Iris-setosa':0, 'Iris-versicolor':1
 print(data)
 
 #Visualizing data
-if plot_images:
-    colors = ['purple', 'blue', 'green']
-    fig1 = plt.figure()
-    for i in range(3): #For each class make a plot in graph
-        fig1 = plt.scatter(  data['sepal_length'][data['species_disc']==i],
-                                data['sepal_width'][data['species_disc']==i],
-                                c=colors[i],
-                                label=data['species'].unique()[i])
-    plt.title('Iris-Flower Graph')
-    plt.xlabel('Sepal Length')
-    plt.ylabel('Sepal Width')
-    plt.legend()
+colors = ['purple', 'blue', 'green']
+fig1 = plt.figure()
+for i in range(3): #For each class make a plot in graph
+    fig1 = plt.scatter(  data['sepal_length'][data['species_disc']==i],
+                            data['sepal_width'][data['species_disc']==i],
+                            c=colors[i],
+                            label=data['species'].unique()[i])
+plt.title('Iris-Flower Graph')
+plt.xlabel('Sepal Length')
+plt.ylabel('Sepal Width')
+plt.legend()
+plt.savefig(os.path.join(image_path,"2D_graph.png"), dpi=300)
 
-    fig2 = plt.figure()
-    ax = fig2.add_subplot(projection='3d')
-    for i in range(3): #For each class make a plot in graph
-        ax.scatter( data['sepal_length'][data['species_disc']==i], 
-                    data['sepal_width'][data['species_disc']==i], 
-                    data['petal_length'][data['species_disc']==i], 
-                    c=colors[i], 
-                    label=data['species'].unique()[i])
-    ax.set_title("Iris-Flower Graph")
-    ax.set_xlabel('Sepal Length')
-    ax.set_ylabel('Sepal Width')
-    ax.set_zlabel('Petal_Length')
-    ax.legend()
+fig2 = plt.figure()
+ax = fig2.add_subplot(projection='3d')
+for i in range(3): #For each class make a plot in graph
+    ax.scatter( data['sepal_length'][data['species_disc']==i], 
+                data['sepal_width'][data['species_disc']==i], 
+                data['petal_length'][data['species_disc']==i], 
+                c=colors[i], 
+                label=data['species'].unique()[i])
+ax.set_title("Iris-Flower Graph")
+ax.set_xlabel('Sepal Length')
+ax.set_ylabel('Sepal Width')
+ax.set_zlabel('Petal_Length')
+ax.legend()
+plt.savefig(os.path.join(image_path,"3D_graph.png"), dpi=300)
+if plot_images:
     plt.show()
- 
+
 #Separating target from features
 y = data['species_disc'] #Target
 x = data.drop(columns=['species','species_disc']) #Features
@@ -84,8 +93,8 @@ print(f'Train length: {len(x_train)}')
 print(f'Val length: {len(x_val)}')
 print(f'Test length: {len(x_test)}')
 
-batch_size = 128
-epochs = 150
+batch_size = 10
+epochs = 50
 loss = 'sparse_categorical_crossentropy'
 optmizer = 'adam'
 metrics = ['accuracy']
@@ -94,16 +103,16 @@ metrics = ['accuracy']
 model = Sequential(name="iris_flower")
 #The input shape will be 4 because we have four variables (sepal/petal length and sepal/petal width)
 model.add(Input(shape=(4))) 
-model.add(Dense(32, activation = 'tanh'))
 model.add(Dense(64, activation = 'relu'))
+model.add(Dropout(0.2))
 model.add(Dense(32, activation = 'relu'))
+model.add(Dense(8, activation = 'relu'))
 model.add(Dense(3, activation = 'softmax')) #Final layer using softmax because the target is multiclass
-model.add(Flatten())
 model.compile(loss=loss, optimizer=optmizer, metrics=metrics)
 
 model.summary()
 
-my_callbacks = [keras.callbacks.EarlyStopping(patience=3)]
+my_callbacks = [keras.callbacks.EarlyStopping(patience=8)]
 
 history = model.fit(x = x_train, 
                     y = y_train, 
@@ -116,21 +125,24 @@ history = model.fit(x = x_train,
 print(history.history.keys())
 
 #Plot loss and accuracy graph
-if plot_images:
-    plt.plot(history.history['loss'] , c='blue', label='Train')
-    plt.plot(history.history['val_loss'], c='red', label="Validation")
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.title("Loss Graph")
-    plt.legend()
-    plt.show()
+fig3 = plt.figure()
+plt.plot(history.history['loss'] , c='blue', label='Train')
+plt.plot(history.history['val_loss'], c='red', label="Validation")
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title("Loss Graph")
+plt.legend()
+plt.savefig(os.path.join(image_path,"loss_graph.png"), dpi=300)
 
-    plt.plot(history.history['accuracy'] , c='blue', label='Train')
-    plt.plot(history.history['val_accuracy'], c='red', label="Validation")
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
-    plt.title("Accuracy Graph")
-    plt.legend()
+fig4 = plt.figure()
+plt.plot(history.history['accuracy'] , c='blue', label='Train')
+plt.plot(history.history['val_accuracy'], c='red', label="Validation")
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.title("Accuracy Graph")
+plt.legend()
+plt.savefig(os.path.join(image_path,"accuracy_graph.png"), dpi=300)
+if plot_images:
     plt.show()
 
 #Verifica a generalização do modelo para dados de teste
@@ -139,15 +151,25 @@ print(f'Test loss: {score[0]}')
 print(f'Test accuracy: {score[1]}')
 
 #Making a predicion
-# predict = model.predict(x_test)
-# predict = predict
-# print(f'predict{predict}')
-# print(f'predict_shape{predict.shape}')
-# print(f'y_test_shape{y_test.shape}')
+model_predict = model.predict(x_test)
+
+predicts = []
+for prediction in model_predict:
+    predicts.append(np.argmax(prediction,axis=0))
 
 #Plot confusion matrix
-# conf_matrix = confusion_matrix(y_test, predict)
-# print(conf_matrix)
+conf_matrix = confusion_matrix(y_test, predicts)
+cm = pd.DataFrame(conf_matrix,
+                     index = ['SETOSA','VERSICOLR','VIRGINICA'], 
+                     columns = ['SETOSA','VERSICOLR','VIRGINICA'])
+fig5 = plt.figure()
+sns.heatmap(cm, annot=True)
+plt.title('Confusion Matrix')
+plt.ylabel('Actual Values')
+plt.xlabel('Predicted Values')
+plt.savefig(os.path.join(image_path,"confusion_matix.png"),dpi=300)
+if plot_images == True:
+    plt.show()
+print(conf_matrix)
 
-# model.predict(x_test)
-# model.save("Path.h5")
+model.save("iris_model.h5")
