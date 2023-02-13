@@ -4,12 +4,12 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
 import tensorflow.keras as keras
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Input, Dropout
+from tensorflow.keras.layers import Dense, Input, Dropout
 
 plot_images = False
 image_path = "images"
@@ -73,7 +73,7 @@ if plot_images:
 
 #Separating target from features
 y = data['species_disc'] #Target
-x = data.drop(columns=['species','species_disc']) #Features
+x = data.drop(columns=['species','species_disc'], axis=1) #Features
 
 print(f"Data:\n{x.head()}\n")
 print(f"Target:\n{y.head()}\n")
