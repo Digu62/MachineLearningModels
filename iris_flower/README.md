@@ -8,10 +8,10 @@
 > The dataset contains a set of 150 records under 5 attributes - Petal Length, Petal Width, Sepal Length, Sepal width and Class(Species).
 
 ## Tasks
-- [ ] Implement folder creation in script code
-- [ ] Imprement machine learning algorithm
-- [ ] Train and test model
-- [ ] Save results
+- [x] Implement folder creation in script code
+- [x] Implement machine learning algorithm
+- [x] Train and test model
+- [x] Save results
 - [ ] Analyse results
 - [ ] Improve model
 

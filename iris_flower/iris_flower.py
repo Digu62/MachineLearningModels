@@ -102,7 +102,7 @@ metrics = ['accuracy']
 
 model = Sequential(name="iris_flower")
 #The input shape will be 4 because we have four variables (sepal/petal length and sepal/petal width)
-model.add(Input(shape=(4))) 
+model.add(Input(shape=(4,))) 
 model.add(Dense(64, activation = 'relu'))
 model.add(Dropout(0.2))
 model.add(Dense(32, activation = 'relu'))
